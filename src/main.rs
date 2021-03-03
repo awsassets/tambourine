@@ -1,4 +1,3 @@
-mod config;
 
 use std::path::PathBuf;
 use structopt::StructOpt;
