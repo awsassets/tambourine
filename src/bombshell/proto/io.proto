@@ -1,0 +1,89 @@
+// Copyright © 2021 Kris Nóva <kris@nivenly.com>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+syntax = "proto3";
+
+// The basic service that can be used for basic IO with tambourine.
+//
+// The bombshell service can be authenticated with TLS. However, by design
+// bombshell will never perform authorization. The service, for lack of a
+// better term, will be unintelligent and will accept whatever IO is sent
+// to it.
+package bombshell;
+
+// The IO Service has basic Get() and Set() methods that can be used effectively
+// as a hashmap at runtime.
+//
+// Both Get() and Set() will return the same IOResponse which will contain any
+// meaningful data (if found) or an error and corresponding ok value and error code.
+service IO {
+
+  // Set is used to send data to the Tambourine backend
+  rpc Set (Record) returns (IOResponse);
+
+  // Get is used to retrieve data from the Tambourine backend
+  rpc Get (Record) returns (IOResponse);
+}
+
+// IOResponse is the main response from the bombshell service.
+// Both Get() and Set() will return an IOResponse.
+message IOResponse {
+
+  // record (Record):
+  //       The most fundamental piece of data. Can be anything.
+  //          Typically encoded/decoded by the client.
+  //          The Record returned by Set() will be byte-for-byte
+  //          what was persisted to the bombshell backend.
+  Record record = 1;
+
+  // error (Error):
+  //       A nested message that can be encoded/decoded by the
+  //          client.
+  //       Errors are returned during a failure on the bombshell
+  //          service such as unable to persist a Record for non
+  //          client specific reasons (Full disk, Permissions, Etc)
+  Error error = 2;
+
+  // ok (bool):
+  //       Get() -> true  : The record was found and returned
+  //       Get() -> false : The record was not found
+  //       Set() -> true  : The record was saved
+  //       Set() -> false : The record not saved
+  bool ok = 3;
+
+
+  // status (int64):
+  //       [0] Success  (the same as Unix exit codes)
+  //       [1] Error    (the same as Unix exit codes)
+  //       [100] Update (a record was changed, Set() specific)
+  int64 code = 4;
+}
+
+
+// Record is a fundamental piece of data for Tambourine. Can be anything.
+message Record {
+
+  // Name is the unique identifier for this record. Can be anything.
+  // All Records are mutable and referenced by this value.
+  string name = 1;
+
+  // Client encoded string. Can be anything.
+  string value = 2;
+}
+
+// Error is a nested message that can be an error message returned to the client.
+message Error {
+
+  // An error message returned to the client during an error.
+  string msg = 1;
+}
