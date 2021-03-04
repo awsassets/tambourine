@@ -2,3 +2,7 @@
 .idea/*
 target*
 target/*
+debug*
+debug/*
+Cargo.lock
+**/*.rs.bk
