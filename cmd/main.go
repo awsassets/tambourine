@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 
+	"github.com/kris-nova/novaarchive/filesystem"
+
 	"github.com/kris-nova/tambourine"
 
 	"github.com/kris-nova/logger"
@@ -10,18 +12,24 @@ import (
 	"github.com/urfave/cli"
 )
 
-var serviceOptions = &tambourine.ServiceOptions{}
+var (
+	serviceOptions        = &tambourine.ServiceOptions{}
+	kubeConfig     string = ""
+)
 
 func main() {
 	app := &cli.App{
 		Flags: []cli.Flag{
-			&cli.IntFlag{
-				Name:  "verbose",
-				Value: 0,
-				Usage: "verbosity level",
+			&cli.StringFlag{
+				Name:        "kubeConfig",
+				Value:       "~/.kube/config",
+				Usage:       "kube config path",
+				Destination: &kubeConfig,
 			},
 		},
 		Action: func(c *cli.Context) error {
+			serviceOptions.KubeConfigPath = filesystem.NewPath(kubeConfig)
+			logger.BitwiseLevel = logger.LogEverything
 			service := tambourine.New(serviceOptions)
 			return service.Run()
 		},
