@@ -4,4 +4,4 @@ project(tambourine C)
 set(CMAKE_C_STANDARD 11)
 
 add_executable(tambourine
-        panda.c)
+        milkshake.c)

@@ -1,4 +1,4 @@
-obj-m += panda.o
+obj-m += milkshake.o
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
