@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mkdir build
+cp init.Makefile build/Makefile
+cp panda.c build/panda.c
