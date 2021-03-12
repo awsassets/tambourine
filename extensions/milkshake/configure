@@ -1,5 +1,0 @@
-#!/bin/bash
-
-mkdir build
-cp init.Makefile build/Makefile
-cp milkshake.c build/milkshake.c
