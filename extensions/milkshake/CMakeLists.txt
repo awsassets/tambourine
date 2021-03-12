@@ -1,7 +1,20 @@
-# cmake_minimum_required(VERSION <specify CMake version here>)
-project(tambourine C)
+cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 
+project(driver VERSION 0.1.0 LANGUAGES C)
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+execute_process (COMMAND uname -r OUTPUT_VARIABLE KERNELVERSION)
+string(STRIP ${KERNELVERSION} KERNELVERSION)
+set(KERNELHEADERS_DIR "/lib/modules/${KERNELVERSION}/build")
+set(KERNELMODULE milkshake.ko)
 
-add_executable(tambourine
-        milkshake.c)
+set(KBUILD_CMD $(MAKE) -C ${KERNELHEADERS_DIR} modules M=${CMAKE_CURRENT_BINARY_DIR} src=${CMAKE_CURRENT_SOURCE_DIR})
+
+FILE(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/Kbuild "obj-m := milkshake.o")
+
+add_custom_command(OUTPUT ${KERNELMODULE}
+        COMMAND ${KBUILD_CMD}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        DEPENDS milkshake.c VERBATIM)
+
+add_custom_target(milkshake ALL DEPENDS ${KERNELMODULE})
